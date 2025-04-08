@@ -38,3 +38,7 @@ nosetests.xml
 venv
 app.db
 beatlink.log*
+
+logs/*
+migrations
+migrations/*
