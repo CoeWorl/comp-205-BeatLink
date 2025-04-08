@@ -125,8 +125,48 @@ class Post(db.Model):
     def __repr__(self):
         return '<Post {}>'.format(self.body)
 
-
 class Song(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     title: so.Mapped[str] = so.mapped_column(sa.String(140))
+    artist: so.Mapped[str] = so.mapped_column(sa.String(140))
+
+    s2artist: so.WriteOnlyMapped['SongtoArtist'] = so.relationship(back_populates='song')
+    s2album: so.WriteOnlyMapped['SongtoAlbum'] = so.relationship(back_populates='song')
+
+class Artist(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    name: so.Mapped[str] = so.mapped_column(sa.String(140))
+
+    s2artist: so.WriteOnlyMapped['SongtoArtist'] = so.relationship(back_populates='artist')
+
+class Album(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    name: so.Mapped[str] = so.mapped_column(sa.String(140))
+    artist: so.Mapped[str] = so.mapped_column(sa.String(140))
+
+    s2album: so.WriteOnlyMapped['SongtoAlbum'] = so.relationship(back_populates='album')
+
+class SongtoArtist(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    songID: so.Mapped[int] = so.mapped_column(sa.Integer(), sa.ForeignKey('song.id'))
+    artistID: so.Mapped[int] = so.mapped_column(sa.Integer(), sa.ForeignKey('artist.id'))
+
+    song: so.Mapped['Song'] = so.relationship("Song", back_populates="s2artist")
+    artist: so.Mapped['Artist'] = so.relationship("Artist", back_populates="s2artist")
+
+class SongToAlbum(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    songID: so.Mapped[int] = so.mapped_column(sa.Integer(), sa.ForeignKey('song.id'))
+    albumID: so.Mapped[int] = so.mapped_column(sa.Integer(), sa.ForeignKey('album.id'))
+
+    song: so.Mapped['Song'] = so.relationship('Song',back_populates='s2album')
+    album: so.Mapped['Album'] = so.relationship('Album',back_populates='s2album')
+
+class AlbumtoArtist(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    albumID: so.Mapped[int] = so.mapped_column(sa.Integer(), sa.ForeignKey('album.id'))
+    artistID: so.Mapped[int] = so.mapped_column(sa.Integer(), sa.ForeignKey('artist.id'))
+    #Album and Artist relationship
+    album: so.Mapped['Album'] = so.relationship("Album", back_populates="albums")
+    artist: so.Mapped['Artist'] = so.relationship("Artist")
 
