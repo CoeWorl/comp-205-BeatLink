@@ -8,6 +8,7 @@ from app.forms import LoginForm, RegistrationForm, EditProfileForm, \
     EmptyForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm
 from app.models import User, Post
 from app.email import send_password_reset_email
+from urllib.parse import urlencode
 
 
 @app.before_request
@@ -82,6 +83,7 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    spotify_login = False
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = RegistrationForm()
@@ -92,8 +94,50 @@ def register():
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
+    if spotify_login is False:
+        params = urlencode({
+        'client_id': app.config['CLIENT_ID'],
+        'response_type': 'code',
+        'redirect_uri': app.config['REDIRECT_URI'],
+        'scope': app.config['SCOPE'],
+        'state': str(user.id),
+        })
+        spotify_login = True
+        return redirect(f"{app.config['SPOTIFY_AUTH_URL']}?{params}")
     return render_template('register.html', title='Register', form=form)
 
+@app.route('/callback')
+def callback():
+    code = request.args.get('code')
+    user_id = db.session.get(current_user.id)
+
+    response = requests.post(app.config['SPOTIFY_TOKEN_URL'], data ={
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': app.config['REDIRECT_URI'],
+        'client_id': app.config['CLIENT_ID'],
+        'client_secret': app.config['CLIENT_SECRET'],
+    })
+
+    token_info = response.json()
+    access_token = token_info['access_token']
+    refresh_token = token_info.get('refresh_token')
+
+    #Get user profile from Spotify
+    headers = {'Authorization': f'Bearer {access_token}'}
+    user_profile_response = requests.get(f"{app.config['SPOTIFY_API_BASE_URL']}/me", headers=headers)
+    user_profile = user_profile_response.json()
+
+    # Save Spotify info to your user DB
+    save_spotify_info(
+        user_id=user_id,
+        spotify_id=user_profile['id'],
+        email=user_profile['email'],
+        access_token=access_token,
+        refresh_token=refresh_token
+    )
+    flash('You are now logged in with Spotify!')
+    return redirect(url_for('index'))
 
 @app.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
