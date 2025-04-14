@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Spotify Connected</title>
+  </head>
+  <body>
+    <script>
+      if (window.opener) {
+          window.opener.postMessage({ type: 'spotify_connected', success: {{ 'true' if success else 'false' }}}, '*');
+          window.close();
+      } else {
+          document.body.innerHTML = '<p>Done. You can close this tab.</p>';
+      }
+    </script>
+  </body>
+</html>

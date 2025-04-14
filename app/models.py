@@ -41,12 +41,10 @@ class User(UserMixin, db.Model):
         secondary=followers, primaryjoin=(followers.c.followed_id == id),
         secondaryjoin=(followers.c.follower_id == id),
         back_populates='following')
-    spotify_id: so.Mapped[str] = so.mapped_column(sa.String(120), unique=True)
-    spotify_email = so.Mapped[str] = so.mapped_column(sa.String(120))
     spotify_access_token: so.Mapped[str] = so.mapped_column(sa.String(256))
     spotify_refresh_token: so.Mapped[str] = so.mapped_column(sa.String(256))
     spotify_token_expires: so.Mapped[datetime] = so.mapped_column(
-        sa.DateTime(timezone=True), default=lambda: datetime(timezone.utc)) 
+        sa.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)) 
 
     def __repr__(self):
         return '<User {}>'.format(self.username)

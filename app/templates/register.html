@@ -1,7 +1,35 @@
-{% extends "base.html" %}
-{% import "bootstrap_wtf.html" as wtf %}
-
-{% block content %}
-    <h1>Register</h1>
-    {{ wtf.quick_form(form) }}
+{% extends "base.html" %} {% import "bootstrap_wtf.html" as wtf %} {% block
+content %}
+<h1>Register</h1>
+{{ wtf.quick_form(form) }}
+<div style="margin-top: 1em">
+  <!-- This button submits the form and triggers the Spotify OAuth redirect on the backend -->
+  <button
+    type="submit"
+    style="
+      background-color: #1db954;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 20px;
+      font-size: 16px;
+    "
+  >
+    Register & Connect with Spotify
+  </button>
+</div>
+<script>
+  window.addEventListener("message", (event) => {
+    if (event.data?.type === "spotify_connected") {
+      if (event.data.success === true) {
+        const msgBox = document.getElementById("spotify-success");
+        if (msgBox) {
+          msgBox.classList.remove("d-none");
+        }
+      } else {
+        alert("Spotify connection failed. Please try again.");
+      }
+    }
+  });
+</script>
 {% endblock %}
