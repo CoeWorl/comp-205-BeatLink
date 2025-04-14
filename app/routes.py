@@ -1,6 +1,6 @@
 from datetime import datetime, timezone, timedelta
 from urllib.parse import urlsplit
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, session
 from flask_login import login_user, logout_user, current_user, login_required
 import sqlalchemy as sa
 from app import app, db
@@ -110,12 +110,6 @@ def register():
 @app.route('/callback')
 def callback():
     code = request.args.get('code')
-    state = db.session.get('state')
-
-    user = db.session.get(User, int(state))
-    if not user:
-        flash('User not found.')
-        return redirect(url_for('index'))
 
     response = requests.post(app.config['SPOTIFY_TOKEN_URL'], data ={
         'grant_type': 'authorization_code',
@@ -127,7 +121,7 @@ def callback():
 
     if response.status_code != 200:
         flash('Spotify authorization failed.')
-        return redirect(url_for('login'))
+        return redirect(url_for('spotify_callback_result.html', success=False))
 
     token_info = response.json()
     access_token = token_info['access_token']
@@ -137,19 +131,21 @@ def callback():
     #Get user profile from Spotify
     headers = {'Authorization': f'Bearer {access_token}'}
     user_profile_response = requests.get(f"{app.config['SPOTIFY_API_BASE_URL']}/me", headers=headers)
+    if user_profile_response.status_code != 200:
+        flash('Failed to fetch user profile from Spotify.')
+        return render_template('spotify_callback_result.html', success=False)
+    
     user_profile = user_profile_response.json()
 
     # Save Spotify info to your user DB
-    user.spotify_id = user_profile['id']
-    user.spotify_email = user_profile['email']
-    user.spotify_access_token = access_token
-    user.spotify_refresh_token = refresh_token
-    user.spotify_token_expires = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
-    db.session.commit()
+    session['spotify_connected'] = True
+    session['spotify_id'] = user_profile['id']
+    session['spotify_email'] = user_profile['email']
+    session['spotify_access_token'] = access_token
+    session['spotify_refresh_token'] = refresh_token
+    session['spotify_token_expires'] = (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat()
 
-    login_user(user)
-    flash('You are now logged in with Spotify!')
-    return redirect(url_for('index'))
+    return render_template('spotify_callback_result.html', success=True)
 
 @app.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
