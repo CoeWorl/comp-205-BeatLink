@@ -145,15 +145,16 @@ class SongToArtist(db.Model):
 class Song(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     title: so.Mapped[str] = so.mapped_column(sa.String(140))
-    artist: so.Mapped[str] = so.mapped_column(sa.String(140))
+    #artist: so.Mapped[str] = so.mapped_column(sa.String(140))
 
     s2artist: so.WriteOnlyMapped['SongToArtist'] = so.relationship(back_populates='song')
-    s2album: so.WriteOnlyMapped['SongToAlbum'] = so.relationship("SongT oAlbum",back_populates='song')
+    s2album: so.WriteOnlyMapped['SongToAlbum'] = so.relationship("SongToAlbum",back_populates='song')
 
 
 class Artist(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     name: so.Mapped[str] = so.mapped_column(sa.String(140))
+    albums: so.WriteOnlyMapped["AlbumToArtist"] = so.relationship("AlbumToArtist", back_populates="artist")
 
     s2artist: so.WriteOnlyMapped['SongToArtist'] = so.relationship(back_populates='artist')
 
@@ -163,6 +164,7 @@ class Album(db.Model):
     artist: so.Mapped[str] = so.mapped_column(sa.String(140))
 
     s2album: so.WriteOnlyMapped['SongToAlbum'] = so.relationship("SongToAlbum",back_populates='album')
+    album_to_artists: so.WriteOnlyMapped['AlbumToArtist'] = so.relationship("AlbumToArtist", back_populates="album")
 
 
 
@@ -171,6 +173,5 @@ class AlbumToArtist(db.Model):
     albumID: so.Mapped[int] = so.mapped_column(sa.Integer(), sa.ForeignKey('album.id'))
     artistID: so.Mapped[int] = so.mapped_column(sa.Integer(), sa.ForeignKey('artist.id'))
 
-    album: so.Mapped['Album'] = so.relationship("Album", back_populates="album")
-    artist: so.Mapped['Artist'] = so.relationship("Artist",back_populates="artist")
-
+    album: so.Mapped['Album'] = so.relationship("Album", back_populates="album_to_artists")
+    artist: so.Mapped['Artist'] = so.relationship("Artist", back_populates="albums")
