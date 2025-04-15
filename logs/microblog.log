@@ -1,14 +1,10 @@
-2025-04-10 13:41:46,093 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-10 13:42:34,777 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-14 11:32:32,000 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-14 11:34:06,988 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-14 11:34:23,549 ERROR: Exception on /register [POST] [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py:875]
+2025-04-15 11:55:38,037 ERROR: Exception on /register [POST] [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py:875]
 Traceback (most recent call last):
   File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
     self.dialect.do_execute(
   File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 945, in do_execute
     cursor.execute(statement, parameters)
-sqlite3.OperationalError: no such column: user.spotify_id
+sqlite3.IntegrityError: NOT NULL constraint failed: user.spotify_access_token
 
 The above exception was the direct cause of the following exception:
 
@@ -25,38 +21,42 @@ Traceback (most recent call last):
   File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/routes.py", line 91, in register
-    if form.validate_on_submit():
-       ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask_wtf/form.py", line 86, in validate_on_submit
-    return self.is_submitted() and self.validate(extra_validators=extra_validators)
-                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/wtforms/form.py", line 330, in validate
-    return super().validate(extra)
-           ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/wtforms/form.py", line 147, in validate
-    if not field.validate(self, extra):
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/wtforms/fields/core.py", line 234, in validate
-    stop_validation = self._run_validation_chain(form, chain)
-                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/wtforms/fields/core.py", line 254, in _run_validation_chain
-    validator(form, self)
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/forms.py", line 27, in validate_username
-    user = db.session.scalar(sa.select(User).where(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 1841, in scalar
-    return self._proxied.scalar(
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2413, in scalar
-    return self._execute_internal(
-           ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2251, in _execute_internal
-    result: Result[Any] = compile_state_cls.orm_execute_statement(
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 306, in orm_execute_statement
-    result = conn.execute(
-             ^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/routes.py", line 96, in register
+    db.session.commit()
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 599, in commit
+    return self._proxied.commit()
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2032, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1313, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1288, in _prepare_impl
+    self.session.flush()
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
   File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
     return meth(
            ^^^^^
@@ -77,13 +77,16 @@ Traceback (most recent call last):
     self.dialect.do_execute(
   File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 945, in do_execute
     cursor.execute(statement, parameters)
-sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: user.spotify_id
-[SQL: SELECT user.id, user.username, user.email, user.password_hash, user.about_me, user.last_seen, user.spotify_id, user.spotify_access_token, user.spotify_refresh_token, user.spotify_token_expires 
-FROM user 
-WHERE user.username = ?]
-[parameters: ('coeworl',)]
-(Background on this error at: https://sqlalche.me/e/20/e3q8)
-2025-04-14 11:38:13,121 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-14 11:39:20,365 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-14 11:41:31,936 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-14 11:43:17,683 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: user.spotify_access_token
+[SQL: INSERT INTO user (username, email, password_hash, about_me, last_seen, spotify_access_token, spotify_refresh_token, spotify_token_expires) VALUES (?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('coeworl', 'c2c@gmail.com', 'scrypt:32768:8:1$XfmYHIy0UUytrro6$08b53b5e6669fc21969d533a30b610ba1c14bfe1a1d542c1a4d5b6fd028b47d22c42ea0ff427e7e0bcc2d07483a1e2201ace40b1f684dc482ee0e1bb9d8bc405', None, '2025-04-15 15:55:38.037386', None, None, '2025-04-15 15:55:38.037392')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-04-15 11:57:12,708 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
+2025-04-15 11:57:19,681 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
+2025-04-15 11:57:23,504 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
+2025-04-15 12:00:37,083 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
+2025-04-15 12:30:24,511 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
+2025-04-15 12:32:40,640 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
+2025-04-15 12:33:02,334 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
+2025-04-15 12:33:13,814 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
+2025-04-15 12:39:14,850 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:45]
