@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -15,7 +16,10 @@ class Config:
     MAIL_PASSWORD = os.environ.get('lol-not-telling')
     ADMINS = ['cole.a.wissink@gmail.com']
 
-    CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
+
+    load_dotenv()
+
+    SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
     CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET")
     REDIRECT_URI = os.environ.get("SPOTIFY_REDIRECT_URI")
 

@@ -14,10 +14,26 @@ content %}
       border-radius: 20px;
       font-size: 16px;
     "
+    onclick="openSpotifyOAuth()"
   >
     Register & Connect with Spotify
   </button>
 </div>
+<script>
+  function openSpotifyOAuth() {
+    const clientId = "{{ spotify_client_id }}"; // You can pass this in via Flask context
+    const redirectUri = encodeURIComponent(
+      "{{ url_for('callback', _external=True) }}"
+    );
+    const scope = encodeURIComponent("user-read-email user-read-private");
+    const state = "{{ state_token }}"; // Optional but recommended to prevent CSRF
+
+    const spotifyAuthUrl = `https://accounts.spotify.com/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+
+    // Open in new tab
+    window.open(spotifyAuthUrl, "_blank");
+  }
+</script>
 <script>
   window.addEventListener("message", (event) => {
     if (event.data?.type === "spotify_connected") {

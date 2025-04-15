@@ -41,10 +41,10 @@ class User(UserMixin, db.Model):
         secondary=followers, primaryjoin=(followers.c.followed_id == id),
         secondaryjoin=(followers.c.follower_id == id),
         back_populates='following')
-    spotify_access_token: so.Mapped[str] = so.mapped_column(sa.String(256))
-    spotify_refresh_token: so.Mapped[str] = so.mapped_column(sa.String(256))
+    spotify_access_token: so.Mapped[str] = so.mapped_column(sa.String(256), nullable=True)
+    spotify_refresh_token: so.Mapped[str] = so.mapped_column(sa.String(256), nullable=True)
     spotify_token_expires: so.Mapped[datetime] = so.mapped_column(
-        sa.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)) 
+        sa.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=True) 
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -101,16 +101,14 @@ class User(UserMixin, db.Model):
             {'reset_password': self.id, 'exp': time() + expires_in},
             app.config['SECRET_KEY'], algorithm='HS256')
     
-    def save_spotify_info(id, spotify_id, email, access_token, refresh_token):
+    def save_spotify_info(id, access_token, refresh_token):
         user = db.session.get(User, id)
-        if user:
-            user.spotify_id = spotify_id
-            user.spotify_email = email
+        if user.spotify_access_token and user.spotify_refresh_token is not None:
             user.spotify_access_token = access_token
             user.spotify_refresh_token = refresh_token
             db.session.commit()
         else:
-            raise ValueError("User not found")
+            pass
         
 
     def is_token_expired(self):

@@ -96,14 +96,14 @@ def register():
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
         params = urlencode({
-        'client_id': app.config['CLIENT_ID'],
+        'client_id': app.config['SPOTIFY_CLIENT_ID'],
         'response_type': 'code',
         'redirect_uri': app.config['REDIRECT_URI'],
         'scope': app.config['SCOPE'],
         'state': str(user.id),
         })
         return redirect(f"{app.config['SPOTIFY_AUTH_URL']}?{params}")
-    return render_template('register.html', title='Register', form=form)
+    return render_template('register.html', title='Register', spotify_client_id=app.config['SPOTIFY_CLIENT_ID'], form=form)
 
     
 
@@ -115,7 +115,7 @@ def callback():
         'grant_type': 'authorization_code',
         'code': code,
         'redirect_uri': app.config['REDIRECT_URI'],
-        'client_id': app.config['CLIENT_ID'],
+        'spotify_client_id': app.config['SPOTIFY_CLIENT_ID'],
         'client_secret': app.config['CLIENT_SECRET'],
     })
 
@@ -124,6 +124,7 @@ def callback():
         return redirect(url_for('spotify_callback_result.html', success=False))
 
     token_info = response.json()
+    spotify_client_id = token_info['spotify_client_id'],
     access_token = token_info['access_token']
     refresh_token = token_info['refresh_token']
     expires_in = token_info.get('expires_in', 3600)
@@ -141,6 +142,7 @@ def callback():
     session['spotify_connected'] = True
     session['spotify_id'] = user_profile['id']
     session['spotify_email'] = user_profile['email']
+    session['spotify_client_id'] = spotify_client_id
     session['spotify_access_token'] = access_token
     session['spotify_refresh_token'] = refresh_token
     session['spotify_token_expires'] = (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat()
