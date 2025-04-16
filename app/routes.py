@@ -8,6 +8,7 @@ from app.forms import LoginForm, RegistrationForm, EditProfileForm, \
     EmptyForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm
 from app.models import User, Post
 from app.email import send_password_reset_email
+from app.utils import save_profile_picture
 
 
 @app.before_request
@@ -141,8 +142,7 @@ def user(username):
     prev_url = url_for('user', username=user.username, page=posts.prev_num) \
         if posts.has_prev else None
     form = EmptyForm()
-    return render_template('user.html', user=user, posts=posts.items,
-                           next_url=next_url, prev_url=prev_url, form=form)
+    return render_template('user.html', user=user, posts=posts.items, next_url=next_url, prev_url=prev_url, form=form)
 
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
@@ -150,16 +150,19 @@ def user(username):
 def edit_profile():
     form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
+        if form.profile_image.data:
+            #Saves pfp if one was uploaded
+            picture_file = save_profile_picture(form.profile_image.data)
+            current_user.profile_image = picture_file
         current_user.username = form.username.data
         current_user.about_me = form.about_me.data
         db.session.commit()
         flash('Your changes have been saved.')
-        return redirect(url_for('edit_profile'))
+        return redirect(url_for('user', username=current_user.username))
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.about_me.data = current_user.about_me
-    return render_template('edit_profile.html', title='Edit Profile',
-                           form=form)
+    return render_template('edit_profile.html', title='Edit Profile',form=form)
 
 
 @app.route('/follow/<username>', methods=['POST'])
