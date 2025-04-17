@@ -1,13 +1,4 @@
-2025-04-15 11:55:38,037 ERROR: Exception on /register [POST] [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py:875]
-Traceback (most recent call last):
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
-    self.dialect.do_execute(
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 945, in do_execute
-    cursor.execute(statement, parameters)
-sqlite3.IntegrityError: NOT NULL constraint failed: user.spotify_access_token
-
-The above exception was the direct cause of the following exception:
-
+2025-04-17 18:15:05,292 ERROR: Exception on /callback [GET] [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py:875]
 Traceback (most recent call last):
   File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -21,72 +12,27 @@ Traceback (most recent call last):
   File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/routes.py", line 96, in register
-    db.session.commit()
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 599, in commit
-    return self._proxied.commit()
-           ^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2032, in commit
-    trans.commit(_to_root=True)
-  File "<string>", line 2, in commit
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
-    ret_value = fn(self, *arg, **kw)
-                ^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1313, in commit
-    self._prepare_impl()
-  File "<string>", line 2, in _prepare_impl
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
-    ret_value = fn(self, *arg, **kw)
-                ^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1288, in _prepare_impl
-    self.session.flush()
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
-    self._flush(objects)
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
-    with util.safe_reraise():
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
-    raise exc_value.with_traceback(exc_tb)
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
-    flush_context.execute()
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
-    rec.execute(self)
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
-    util.preloaded.orm_persistence.save_obj(
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
-    _emit_insert_statements(
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1233, in _emit_insert_statements
-    result = connection.execute(
-             ^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
-    return meth(
-           ^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 523, in _execute_on_connection
-    return connection._execute_clauseelement(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
-    ret = self._execute_context(
-          ^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1843, in _execute_context
-    return self._exec_single_context(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
-    self._handle_dbapi_exception(
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2352, in _handle_dbapi_exception
-    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
-    self.dialect.do_execute(
-  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 945, in do_execute
-    cursor.execute(statement, parameters)
-sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: user.spotify_access_token
-[SQL: INSERT INTO user (username, email, password_hash, about_me, last_seen, spotify_access_token, spotify_refresh_token, spotify_token_expires) VALUES (?, ?, ?, ?, ?, ?, ?, ?)]
-[parameters: ('coeworl', 'c2c@gmail.com', 'scrypt:32768:8:1$XfmYHIy0UUytrro6$08b53b5e6669fc21969d533a30b610ba1c14bfe1a1d542c1a4d5b6fd028b47d22c42ea0ff427e7e0bcc2d07483a1e2201ace40b1f684dc482ee0e1bb9d8bc405', None, '2025-04-15 15:55:38.037386', None, None, '2025-04-15 15:55:38.037392')]
-(Background on this error at: https://sqlalche.me/e/20/gkpj)
-2025-04-15 11:57:12,708 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-15 11:57:19,681 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-15 11:57:23,504 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-15 12:00:37,083 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-15 12:30:24,511 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-15 12:32:40,640 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-15 12:33:02,334 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-15 12:33:13,814 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:48]
-2025-04-15 12:39:14,850 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:45]
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/routes.py", line 136, in callback
+    'redirect_uri': app.config['SPOTIFY_REDIRECT_URI'],
+                    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'SPOTIFY_REDIRECT_URI'
+2025-04-17 18:15:46,506 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]
+2025-04-17 18:15:50,626 ERROR: Exception on /callback [GET] [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/routes.py", line 138, in callback
+    'client_secret': app.config['SPOTIFY_CLIENT_SECRET']
+                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'SPOTIFY_CLIENT_SECRET'
+2025-04-17 18:16:47,745 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]

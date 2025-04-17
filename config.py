@@ -1,7 +1,8 @@
 import os
 from dotenv import load_dotenv
 basedir = os.path.abspath(os.path.dirname(__file__))
-
+load_dotenv(os.path.join(basedir, '.env'))
+print("Loaded SPOTIFY_CLIENT_ID:", os.environ.get("SPOTIFY_CLIENT_ID"))
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
@@ -16,13 +17,10 @@ class Config:
     MAIL_PASSWORD = os.environ.get('lol-not-telling')
     ADMINS = ['cole.a.wissink@gmail.com']
 
-
-    load_dotenv()
-
+    
     SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
     CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET")
     REDIRECT_URI = os.environ.get("SPOTIFY_REDIRECT_URI")
-
     SPOTIFY_AUTH_URL = "https://accounts.spotify.com/authorize"
     SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
     SPOTIFY_API_BASE_URL = "https://api.spotify.com/v1"

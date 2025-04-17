@@ -10,6 +10,7 @@ from app.models import User, Post
 from app.email import send_password_reset_email
 from urllib.parse import urlencode
 import requests
+import secrets
 
 
 @app.before_request
@@ -95,59 +96,76 @@ def register():
         db.session.add(user)
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
-        params = urlencode({
+    
+    print(f"Spotify Client ID: {app.config['SPOTIFY_CLIENT_ID']}")
+    return render_template('register.html', title='Register', spotify_client_id=app.config['SPOTIFY_CLIENT_ID'], form=form)
+
+def spotify_login():
+    state = secrets.token_urlsafe(16)
+    session['spotify_auth_state'] = state
+    query_params = urlencode({
         'client_id': app.config['SPOTIFY_CLIENT_ID'],
         'response_type': 'code',
         'redirect_uri': app.config['REDIRECT_URI'],
         'scope': app.config['SCOPE'],
-        'state': str(user.id),
-        })
-        return redirect(f"{app.config['SPOTIFY_AUTH_URL']}?{params}")
-    return render_template('register.html', title='Register', spotify_client_id=app.config['SPOTIFY_CLIENT_ID'], form=form)
-
+        'state': state
+    })
+    return redirect(f"{app.config['SPOTIFY_AUTH_URL']}?{query_params}")
     
 
-@app.route('/callback')
+@app.route('/callback', methods=['GET','POST'])
 def callback():
-    code = request.args.get('code')
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    if 'error' in request.args:
+        flash("Spotify authorization failed.")
+        return redirect(url_for('login'))
 
-    response = requests.post(app.config['SPOTIFY_TOKEN_URL'], data ={
+    code = request.args.get('code')
+    state = request.args.get('state')
+
+    if state != session.get('spotify_auth_state'):
+        flash("State mismatch. Possible CSRF attack.")
+        return redirect(url_for('login'))
+    
+    # Exchange code for token
+    token_response = requests.post(app.config['SPOTIFY_TOKEN_URL'], data={
         'grant_type': 'authorization_code',
         'code': code,
         'redirect_uri': app.config['REDIRECT_URI'],
-        'spotify_client_id': app.config['SPOTIFY_CLIENT_ID'],
-        'client_secret': app.config['CLIENT_SECRET'],
+        'client_id': app.config['SPOTIFY_CLIENT_ID'],
+        'client_secret': app.config['CLIENT_SECRET']
     })
 
-    if response.status_code != 200:
-        flash('Spotify authorization failed.')
-        return redirect(url_for('spotify_callback_result.html', success=False))
+    token_data = token_response.json()
+    access_token = token_data.get('access_token')
+    refresh_token = token_data.get('refresh_token')
+    expires_in = token_data.get('expires_in')
 
-    token_info = response.json()
-    spotify_client_id = token_info['spotify_client_id'],
-    access_token = token_info['access_token']
-    refresh_token = token_info['refresh_token']
-    expires_in = token_info.get('expires_in', 3600)
-
-    #Get user profile from Spotify
+    # Get Spotify user profile
     headers = {'Authorization': f'Bearer {access_token}'}
-    user_profile_response = requests.get(f"{app.config['SPOTIFY_API_BASE_URL']}/me", headers=headers)
-    if user_profile_response.status_code != 200:
-        flash('Failed to fetch user profile from Spotify.')
-        return render_template('spotify_callback_result.html', success=False)
-    
-    user_profile = user_profile_response.json()
+    user_profile = requests.get(f"{app.config['SPOTIFY_API_BASE_URL']}/me", headers=headers).json()
 
-    # Save Spotify info to your user DB
-    session['spotify_connected'] = True
-    session['spotify_id'] = user_profile['id']
-    session['spotify_email'] = user_profile['email']
-    session['spotify_client_id'] = spotify_client_id
-    session['spotify_access_token'] = access_token
-    session['spotify_refresh_token'] = refresh_token
-    session['spotify_token_expires'] = (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat()
+    spotify_id = user_profile['id']
+    email = user_profile['email']
 
-    return render_template('spotify_callback_result.html', success=True)
+    # Lookup or create user
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        user = User(username=spotify_id, email=email)
+        db.session.add(user)
+
+    # Save Spotify credentials
+    user.spotify_id = spotify_id
+    user.spotify_access_token = access_token
+    user.spotify_refresh_token = refresh_token
+    user.spotify_token_expires = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
+    db.session.commit()
+
+    login_user(user)
+    flash("Successfully signed in with Spotify!")
+    return redirect(url_for('index'))
 
 @app.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
