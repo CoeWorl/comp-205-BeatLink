@@ -23,4 +23,9 @@
 
     <button type="submit" class="btn btn-primary">Update</button>
 </form>
+
+<form action="{{ url_for('delete_profile_picture') }}" method="POST" style="margin-top: 15px;">
+        {{ form.hidden_tag() }}
+        <button type="submit" class="btn btn-danger">Delete Profile Picture</button>
+</form>
 {% endblock %}

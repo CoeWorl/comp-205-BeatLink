@@ -52,8 +52,7 @@ class ResetPasswordForm(FlaskForm):
 class EditProfileForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
-    profile_image = FileField('Update Profile Picture', validators=[
-        FileAllowed(['jpg', 'png', 'jpeg','heic'])])
+    profile_image = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
     submit = SubmitField('Submit')
 
     def __init__(self, original_username, *args, **kwargs):

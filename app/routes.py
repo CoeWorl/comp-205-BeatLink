@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 from urllib.parse import urlsplit
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, current_app
 from flask_login import login_user, logout_user, current_user, login_required
-import sqlalchemy as sa
+import sqlalchemy as sa, os
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, \
     EmptyForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm
@@ -151,6 +151,7 @@ def edit_profile():
     form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
         if form.profile_image.data:
+            delete_profile_picture()
             #Saves pfp if one was uploaded
             picture_file = save_profile_picture(form.profile_image.data)
             current_user.profile_image = picture_file
@@ -164,6 +165,21 @@ def edit_profile():
         form.about_me.data = current_user.about_me
     return render_template('edit_profile.html', title='Edit Profile',form=form)
 
+@app.route('/delete_profile_picture', methods=['POST'])
+@login_required
+def delete_profile_picture():
+    if current_user.profile_image and current_user.profile_image != 'default.jpg':
+        picture_path = os.path.join(current_app.root_path, 'static/profile_pics', current_user.profile_image)
+        if os.path.exists(picture_path):
+            os.remove(picture_path)
+
+        current_user.profile_image = 'default.jpg'
+        db.session.commit()
+        flash('Your profile picture has been removed.')
+    else:
+        flash('You are already using the default avatar.')
+
+    return redirect(url_for('edit_profile'))
 
 @app.route('/follow/<username>', methods=['POST'])
 @login_required
@@ -205,3 +221,17 @@ def unfollow(username):
         return redirect(url_for('user', username=username))
     else:
         return redirect(url_for('index'))
+
+@app.route('/reset_db')
+def reset_db():
+   flash("Resetting database: deleting old data")
+   # delete profile picture from the profile picture folder when db is reset
+   delete_profile_picture()
+   # clear all data from all tables
+   meta = db.metadata
+   for table in reversed(meta.sorted_tables):
+       print('Clear table {}'.format(table))
+       db.session.execute(table.delete())
+   db.session.commit()
+
+   return redirect(url_for('index'))
