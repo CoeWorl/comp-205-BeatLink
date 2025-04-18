@@ -8,6 +8,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from app import app, db, login
+from flask import url_for
 
 
 followers = sa.Table(
@@ -22,10 +23,9 @@ followers = sa.Table(
 
 class User(UserMixin, db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True,
-                                                unique=True)
-    email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True,
-                                             unique=True)
+    username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True)
+    email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
+    profile_image: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256), default='default.jpg')
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
     about_me: so.Mapped[Optional[str]] = so.mapped_column(sa.String(140))
     last_seen: so.Mapped[Optional[datetime]] = so.mapped_column(
@@ -56,8 +56,11 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def avatar(self, size):
-        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
-        return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
+        if self.profile_image and self.profile_image != 'default.jpg':
+            return url_for('static', filename=f'profile_pics/{self.profile_image}')
+        else:
+            digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+            return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 
     def follow(self, user):
         if not self.is_following(user):
@@ -141,3 +144,54 @@ class Post(db.Model):
 
     def __repr__(self):
         return '<Post {}>'.format(self.body)
+
+
+class SongToAlbum(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    songID: so.Mapped[int] = so.mapped_column(sa.Integer(), sa.ForeignKey('song.id'))
+    albumID: so.Mapped[int] = so.mapped_column(sa.Integer(), sa.ForeignKey('album.id'))
+
+    song: so.Mapped['Song'] = so.relationship('Song',back_populates='s2album')
+    album: so.Mapped['Album'] = so.relationship('Album',back_populates='s2album')
+
+class SongToArtist(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    songID: so.Mapped[int] = so.mapped_column(sa.Integer(), sa.ForeignKey('song.id'))
+    artistID: so.Mapped[int] = so.mapped_column(sa.Integer(), sa.ForeignKey('artist.id'))
+
+    song: so.Mapped['Song'] = so.relationship("Song", back_populates="s2artist")
+    artist: so.Mapped['Artist'] = so.relationship("Artist", back_populates="s2artist")
+
+class Song(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    title: so.Mapped[str] = so.mapped_column(sa.String(140))
+    #artist: so.Mapped[str] = so.mapped_column(sa.String(140))
+
+    s2artist: so.WriteOnlyMapped['SongToArtist'] = so.relationship(back_populates='song')
+    s2album: so.WriteOnlyMapped['SongToAlbum'] = so.relationship("SongToAlbum",back_populates='song')
+
+
+class Artist(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    name: so.Mapped[str] = so.mapped_column(sa.String(140))
+    albums: so.WriteOnlyMapped["AlbumToArtist"] = so.relationship("AlbumToArtist", back_populates="artist")
+
+    s2artist: so.WriteOnlyMapped['SongToArtist'] = so.relationship(back_populates='artist')
+
+class Album(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    name: so.Mapped[str] = so.mapped_column(sa.String(140))
+    artist: so.Mapped[str] = so.mapped_column(sa.String(140))
+
+    s2album: so.WriteOnlyMapped['SongToAlbum'] = so.relationship("SongToAlbum",back_populates='album')
+    album_to_artists: so.WriteOnlyMapped['AlbumToArtist'] = so.relationship("AlbumToArtist", back_populates="album")
+
+
+
+class AlbumToArtist(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    albumID: so.Mapped[int] = so.mapped_column(sa.Integer(), sa.ForeignKey('album.id'))
+    artistID: so.Mapped[int] = so.mapped_column(sa.Integer(), sa.ForeignKey('artist.id'))
+
+    album: so.Mapped['Album'] = so.relationship("Album", back_populates="album_to_artists")
+    artist: so.Mapped['Artist'] = so.relationship("Artist", back_populates="albums")

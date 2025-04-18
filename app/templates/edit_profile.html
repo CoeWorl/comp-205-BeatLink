@@ -3,5 +3,29 @@
 
 {% block content %}
     <h1>Edit Profile</h1>
-    {{ wtf.quick_form(form) }}
+    <form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+        {{ form.username.label }}<br>
+        {{ form.username(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.about_me.label }}<br>
+        {{ form.about_me(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.profile_image.label }}<br>
+        {{ form.profile_image(class="form-control-file") }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>
+
+<form action="{{ url_for('delete_profile_picture') }}" method="POST" style="margin-top: 15px;">
+        {{ form.hidden_tag() }}
+        <button type="submit" class="btn btn-danger">Delete Profile Picture</button>
+</form>
 {% endblock %}
