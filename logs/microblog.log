@@ -1,0 +1,43 @@
+2025-04-17 18:15:05,292 ERROR: Exception on /callback [GET] [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/routes.py", line 136, in callback
+    'redirect_uri': app.config['SPOTIFY_REDIRECT_URI'],
+                    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'SPOTIFY_REDIRECT_URI'
+2025-04-17 18:15:46,506 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]
+2025-04-17 18:15:50,626 ERROR: Exception on /callback [GET] [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/beatlink/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/routes.py", line 138, in callback
+    'client_secret': app.config['SPOTIFY_CLIENT_SECRET']
+                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'SPOTIFY_CLIENT_SECRET'
+2025-04-17 18:16:47,745 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]
+2025-04-18 11:57:53,405 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]
+2025-04-18 12:09:06,277 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]
+2025-04-18 12:16:56,901 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]
+2025-04-18 12:19:17,713 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]
+2025-04-18 12:21:52,100 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]
