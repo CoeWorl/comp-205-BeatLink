@@ -225,13 +225,13 @@ def unfollow(username):
 @app.route('/reset_db')
 def reset_db():
    flash("Resetting database: deleting old data")
-   # delete profile picture from the profile picture folder when db is reset
-   delete_profile_picture()
    # clear all data from all tables
    meta = db.metadata
    for table in reversed(meta.sorted_tables):
        print('Clear table {}'.format(table))
        db.session.execute(table.delete())
+       # delete profile picture from the profile picture folder when db is reset
+       delete_profile_picture()
    db.session.commit()
 
    return redirect(url_for('index'))
