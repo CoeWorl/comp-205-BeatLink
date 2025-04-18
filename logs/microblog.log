@@ -36,3 +36,8 @@ Traceback (most recent call last):
                      ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
 KeyError: 'SPOTIFY_CLIENT_SECRET'
 2025-04-17 18:16:47,745 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]
+2025-04-18 11:57:53,405 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]
+2025-04-18 12:09:06,277 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]
+2025-04-18 12:16:56,901 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]
+2025-04-18 12:19:17,713 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]
+2025-04-18 12:21:52,100 INFO: Microblog startup [in /Users/colewissink/Documents/Comp 205/comp-205-BeatLink/app/__init__.py:46]

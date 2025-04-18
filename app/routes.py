@@ -148,16 +148,16 @@ def callback():
     user_profile = requests.get(f"{app.config['SPOTIFY_API_BASE_URL']}/me", headers=headers).json()
 
     spotify_id = user_profile['id']
+    display_name = user_profile.get('display_name', f"spotify_user_{spotify_id}")
     email = user_profile['email']
 
     # Lookup or create user
     user = User.query.filter_by(email=email).first()
     if not user:
-        user = User(username=spotify_id, email=email)
+        user = User(username=display_name or spotify_id, email=email)
         db.session.add(user)
 
     # Save Spotify credentials
-    user.spotify_id = spotify_id
     user.spotify_access_token = access_token
     user.spotify_refresh_token = refresh_token
     user.spotify_token_expires = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
@@ -275,4 +275,3 @@ def unfollow(username):
     else:
         return redirect(url_for('index'))
 
-    # delete this comment
