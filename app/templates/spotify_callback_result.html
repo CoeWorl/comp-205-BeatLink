@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Spotify Connected</title>
+  </head>
+  <body>
+    <script>
+      // Notify the opener (original tab)
+      if (window.opener) {
+        window.opener.postMessage(
+          { type: "spotify_connected", success: true },
+          "*"
+        );
+        window.close();
+      } else {
+        document.body.innerHTML = "<p>Done. You can close this tab.</p>";
+        documnet.body.innerHTML +=
+          "<a href='{{ url_for('index') }}'>Go to Home</a>";
+      }
+    </script>
+  </body>
+</html>

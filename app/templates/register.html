@@ -1,7 +1,51 @@
-{% extends "base.html" %}
-{% import "bootstrap_wtf.html" as wtf %}
+{% extends "base.html" %} {% import "bootstrap_wtf.html" as wtf %} {% block
+content %}
+<h1>Register</h1>
+{{ wtf.quick_form(form) }}
+<div style="margin-top: 1em">
+  <!-- This button submits the form and triggers the Spotify OAuth redirect on the backend -->
+  <button
+    type="submit"
+    style="
+      background-color: #1db954;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 20px;
+      font-size: 16px;
+    "
+    onclick="openSpotifyOAuth()"
+  >
+    Register & Connect with Spotify
+  </button>
+</div>
+<script>
+  function openSpotifyOAuth() {
+    const clientId = "{{ spotify_client_id }}"; // You can pass this in via Flask context
+    const redirectUri = encodeURIComponent(
+      "{{ url_for('callback', _external=True) }}"
+    );
+    const scope = encodeURIComponent("user-read-email user-read-private");
+    const state = "{{ state_token }}"; // Optional but recommended to prevent CSRF
 
-{% block content %}
-    <h1>Register</h1>
-    {{ wtf.quick_form(form) }}
+    const spotifyAuthUrl = `https://accounts.spotify.com/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+
+    // Open in new tab
+    window.open(spotifyAuthUrl, "_blank");
+  }
+</script>
+<script>
+  window.addEventListener("message", (event) => {
+    if (event.data?.type === "spotify_connected") {
+      if (event.data.success === true) {
+        const msgBox = document.getElementById("spotify-success");
+        if (msgBox) {
+          msgBox.classList.remove("d-none");
+        }
+      } else {
+        alert("Spotify connection failed. Please try again.");
+      }
+    }
+  });
+</script>
 {% endblock %}

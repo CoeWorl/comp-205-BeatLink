@@ -1,13 +1,18 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from urllib.parse import urlsplit
+from flask import render_template, flash, redirect, url_for, request, current_app, session
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, logout_user, current_user, login_required
-import sqlalchemy as sa
+import sqlalchemy as sa, os
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, \
     EmptyForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm
 from app.models import User, Post
 from app.email import send_password_reset_email
+from app.utils import save_profile_picture
+from urllib.parse import urlencode
+import requests
+import secrets
 
 
 @app.before_request
@@ -84,16 +89,85 @@ def logout():
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
+
     form = RegistrationForm()
     if form.validate_on_submit():
+        # save user info to session (for after Spotify callback)
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
-        return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
 
+    print(f"Spotify Client ID: {app.config['SPOTIFY_CLIENT_ID']}")
+    return render_template('register.html', title='Register', spotify_client_id=app.config['SPOTIFY_CLIENT_ID'], form=form)
+
+def spotify_login():
+    state = secrets.token_urlsafe(16)
+    session['spotify_auth_state'] = state
+    query_params = urlencode({
+        'client_id': app.config['SPOTIFY_CLIENT_ID'],
+        'response_type': 'code',
+        'redirect_uri': app.config['REDIRECT_URI'],
+        'scope': app.config['SCOPE'],
+        'state': state
+    })
+    return redirect(f"{app.config['SPOTIFY_AUTH_URL']}?{query_params}")
+
+
+@app.route('/callback', methods=['GET','POST'])
+def callback():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+    if 'error' in request.args:
+        flash("Spotify authorization failed.")
+        return redirect(url_for('login'))
+
+    code = request.args.get('code')
+    state = request.args.get('state')
+
+    if state != session.get('spotify_auth_state'):
+        flash("State mismatch. Possible CSRF attack.")
+        return redirect(url_for('login'))
+
+    # Exchange code for token
+    token_response = requests.post(app.config['SPOTIFY_TOKEN_URL'], data={
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': app.config['REDIRECT_URI'],
+        'client_id': app.config['SPOTIFY_CLIENT_ID'],
+        'client_secret': app.config['CLIENT_SECRET']
+    })
+
+    token_data = token_response.json()
+    access_token = token_data.get('access_token')
+    refresh_token = token_data.get('refresh_token')
+    expires_in = token_data.get('expires_in')
+
+    # Get Spotify user profile
+    headers = {'Authorization': f'Bearer {access_token}'}
+    user_profile = requests.get(f"{app.config['SPOTIFY_API_BASE_URL']}/me", headers=headers).json()
+
+    spotify_id = user_profile['id']
+    display_name = user_profile.get('display_name', f"spotify_user_{spotify_id}")
+    email = user_profile['email']
+
+    # Lookup or create user
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        user = User(username=display_name or spotify_id, email=email)
+        db.session.add(user)
+
+    # Save Spotify credentials
+    user.spotify_access_token = access_token
+    user.spotify_refresh_token = refresh_token
+    user.spotify_token_expires = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
+    db.session.commit()
+
+    login_user(user)
+    flash("Successfully signed in with Spotify!")
+    return redirect(url_for('index'))
 
 @app.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
@@ -150,6 +224,11 @@ def user(username):
 def edit_profile():
     form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
+        if form.profile_image.data:
+            delete_profile_picture()
+            #Saves pfp if one was uploaded
+            picture_file = save_profile_picture(form.profile_image.data)
+            current_user.profile_image = picture_file
         current_user.username = form.username.data
         current_user.about_me = form.about_me.data
         db.session.commit()
@@ -161,6 +240,13 @@ def edit_profile():
     return render_template('edit_profile.html', title='Edit Profile',
                            form=form)
 
+        current_user.profile_image = 'default.jpg'
+        db.session.commit()
+        flash('Your profile picture has been removed.')
+    else:
+        flash('You are already using the default avatar.')
+
+    return redirect(url_for('edit_profile'))
 
 @app.route('/follow/<username>', methods=['POST'])
 @login_required
@@ -202,3 +288,18 @@ def unfollow(username):
         return redirect(url_for('user', username=username))
     else:
         return redirect(url_for('index'))
+
+@app.route('/reset_db')
+def reset_db():
+   flash("Resetting database: deleting old data")
+   # clear all data from all tables
+   meta = db.metadata
+   for table in reversed(meta.sorted_tables):
+       print('Clear table {}'.format(table))
+       db.session.execute(table.delete())
+       # delete profile picture from the profile picture folder when db is reset
+       delete_profile_picture()
+   db.session.commit()
+
+   return redirect(url_for('index'))
+
