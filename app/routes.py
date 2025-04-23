@@ -12,6 +12,7 @@ from app.utils import save_profile_picture
 from urllib.parse import urlencode
 import requests
 import secrets
+import re
 
 
 @app.before_request
@@ -27,7 +28,12 @@ def before_request():
 def index():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(body=form.post.data, author=current_user)
+        spotify_url = form.spotify_url.data.strip()
+        spotify_track_id = None
+        match = re.search(r"track/([a-zA-Z0-9]+)", spotify_url)
+        if match:
+            spotify_track_id = match.group(1)
+        post = Post(body=form.post.data, author=current_user, spotify_track_id=spotify_track_id)
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')

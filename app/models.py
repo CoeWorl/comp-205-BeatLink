@@ -141,6 +141,7 @@ class Post(db.Model):
                                                index=True)
 
     author: so.Mapped[User] = so.relationship(back_populates='posts')
+    spotify_track_id = db.Column(db.String(64), nullable=True)
 
     def __repr__(self):
         return '<Post {}>'.format(self.body)
