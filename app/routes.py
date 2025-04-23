@@ -29,11 +29,14 @@ def index():
     form = PostForm()
     if form.validate_on_submit():
         spotify_url = form.spotify_url.data.strip()
-        spotify_track_id = None
-        match = re.search(r"track/([a-zA-Z0-9]+)", spotify_url)
+        spotify_item_type = None
+        spotify_item_id = None
+        match = re.search(r"(track|album|artist)/([a-zA-Z0-9]+)", spotify_url)
         if match:
-            spotify_track_id = match.group(1)
-        post = Post(body=form.post.data, author=current_user, spotify_track_id=spotify_track_id)
+            spotify_item_type = match.group(1)
+            spotify_item_id = match.group(2)
+
+        post = Post(body=form.post.data, author=current_user, spotify_item_id=spotify_item_id, spotify_item_type=spotify_item_type)
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')

@@ -11,18 +11,30 @@
       </a>
       says:
       <br />
-      {{ post.body }} {% if post.spotify_track_id %}
+      {{ post.body }} {% if post.spotify_item_id and post.spotify_item_type %}
+      {% if post.spotify_item_type == 'artist' %}
       <br />
       <iframe
         style="border-radius: 12px"
-        src="https://open.spotify.com/embed/track/{{ post.spotify_track_id }}"
+        src="https://open.spotify.com/embed/artist/{{ post.spotify_item_id }}"
+        width="100%"
+        height="152"
+        frameborder="0"
+        allowtransparency="true"
+        allow="encrypted-media"
+      ></iframe>
+      {% else %}
+      <br />
+      <iframe
+        style="border-radius: 12px"
+        src="https://open.spotify.com/embed/{{ post.spotify_item_type }}/{{ post.spotify_item_id }}"
         width="100%"
         height="80"
         frameborder="0"
         allowtransparency="true"
         allow="encrypted-media"
       ></iframe>
-      {% endif %}
+      {% endif %} {% endif %}
     </td>
   </tr>
 </table>
