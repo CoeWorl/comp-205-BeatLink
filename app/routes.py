@@ -148,6 +148,9 @@ def callback():
         'client_secret': app.config['CLIENT_SECRET']
     })
 
+    print("Status Code:", token_response.status_code)
+    print("Response Text:", token_response.text)
+
     token_data = token_response.json()
     access_token = token_data.get('access_token')
     refresh_token = token_data.get('refresh_token')
@@ -317,3 +320,21 @@ def reset_db():
 
    return redirect(url_for('index'))
 
+@app.route('/repost/<int:post_id>', methods=['POST'])
+@login_required
+def repost(post_id):
+    original_post = db.session.get(Post, post_id)
+    if not original_post:
+        flash('Original post not found.')
+        return redirect(url_for('index'))
+
+    repost = Post(
+        body='',
+        author=current_user,
+        is_repost=True,
+        original_post=original_post
+    )
+    db.session.add(repost)
+    db.session.commit()
+    flash('Post reposted successfully!')
+    return redirect(request.referrer or url_for('index'))

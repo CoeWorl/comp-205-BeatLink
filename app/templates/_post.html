@@ -6,6 +6,40 @@
       </a>
     </td>
     <td>
+        <!-- Repost code -->
+      {% if post.is_repost %}
+        <p><em>{{ post.author.username }} reposted:</em></p>
+        <div class="repost-content" style="border-left: 3px solid #ccc; padding-left: 10px; margin-bottom: 10px;">
+          <strong>{{ post.original_post.author.username }}</strong>: {{ post.original_post.body }}
+
+          {% if post.original_post.spotify_item_id and post.original_post.spotify_item_type %}
+            {% if post.original_post.spotify_item_type == 'artist' %}
+              <br />
+              <iframe
+                style="border-radius: 12px"
+                src="https://open.spotify.com/embed/artist/{{ post.original_post.spotify_item_id }}"
+                width="100%"
+                height="152"
+                frameborder="0"
+                allowtransparency="true"
+                allow="encrypted-media"
+              ></iframe>
+            {% else %}
+              <br />
+              <iframe
+                style="border-radius: 12px"
+                src="https://open.spotify.com/embed/{{ post.original_post.spotify_item_type }}/{{ post.original_post.spotify_item_id }}"
+                width="100%"
+                height="80"
+                frameborder="0"
+                allowtransparency="true"
+                allow="encrypted-media"
+              ></iframe>
+            {% endif %}
+          {% endif %}
+        </div>
+      {% else %}
+        <!--normal post code -->
       <a href="{{ url_for('user', username=post.author.username) }}">
         {{ post.author.username }}
       </a>
@@ -34,7 +68,15 @@
         allowtransparency="true"
         allow="encrypted-media"
       ></iframe>
-      {% endif %} {% endif %}
+      {% endif %}
+    {% endif %}
+    <!-- repost button -->
+    {% if post.author != current_user %}
+        <form action="{{ url_for('repost', post_id=post.id) }}" method="post" style="margin-top: 8px;">
+          {{ form.hidden_tag() }}
+          <button type="submit" class="btn btn-sm btn-outline-secondary">Repost</button>
+        </form>
+      {% endif %}
     </td>
   </tr>
 </table>
