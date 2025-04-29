@@ -9,6 +9,11 @@
         <!-- Repost code -->
       {% if post.is_repost %}
         <p><em>{{ post.author.username }} reposted:</em></p>
+
+        {% if post.body %}
+          <p><strong>{{ post.author.username }}</strong>: {{ post.body }}</p>
+        {% endif %}
+
         <div class="repost-content" style="border-left: 3px solid #ccc; padding-left: 10px; margin-bottom: 10px;">
           <strong>{{ post.original_post.author.username }}</strong>: {{ post.original_post.body }}
 
@@ -40,12 +45,15 @@
         </div>
       {% else %}
         <!--normal post code -->
+      {% endif %}
       <a href="{{ url_for('user', username=post.author.username) }}">
         {{ post.author.username }}
       </a>
       says:
       <br />
-      {{ post.body }} {% if post.spotify_item_id and post.spotify_item_type %}
+      {{ post.body }}
+
+      {% if post.spotify_item_id and post.spotify_item_type %}
       {% if post.spotify_item_type == 'artist' %}
       <br />
       <iframe
@@ -74,7 +82,8 @@
     {% if post.author != current_user %}
         <form action="{{ url_for('repost', post_id=post.id) }}" method="post" style="margin-top: 8px;">
           {{ form.hidden_tag() }}
-          <button type="submit" class="btn btn-sm btn-outline-secondary">Repost</button>
+            <textarea name="body" class="form-control mb-1" rows="2" placeholder="Add a comment (optional)"></textarea>
+            <button type="submit" class="btn btn-sm btn-outline-secondary">Repost</button>
         </form>
       {% endif %}
     </td>
