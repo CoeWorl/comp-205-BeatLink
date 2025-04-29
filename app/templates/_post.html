@@ -6,7 +6,7 @@
       </a>
     </td>
     <td>
-        <!-- Repost code -->
+        <!-- Repost -->
       {% if post.is_repost %}
         <p><em>{{ post.author.username }} reposted:</em></p>
 
@@ -44,7 +44,7 @@
           {% endif %}
         </div>
       {% else %}
-        <!--normal post code -->
+        <!--normal post-->
       {% endif %}
       <a href="{{ url_for('user', username=post.author.username) }}">
         {{ post.author.username }}
