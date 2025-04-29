@@ -1,6 +1,6 @@
 from datetime import datetime, timezone, timedelta
 from urllib.parse import urlsplit
-from flask import render_template, flash, redirect, url_for, request, current_app, session
+from flask import render_template, flash, redirect, url_for, request, current_app, session, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
 import sqlalchemy as sa, os
 from app import app, db
@@ -9,6 +9,7 @@ from app.forms import LoginForm, RegistrationForm, EditProfileForm, \
 from app.models import User, Post
 from app.email import send_password_reset_email
 from app.utils import save_profile_picture
+from app.spotify import refresh_spotify_token
 from urllib.parse import urlencode
 import requests
 import secrets
@@ -28,13 +29,8 @@ def before_request():
 def index():
     form = PostForm()
     if form.validate_on_submit():
-        spotify_url = form.spotify_url.data.strip()
-        spotify_item_type = None
-        spotify_item_id = None
-        match = re.search(r"(track|album|artist)/([a-zA-Z0-9]+)", spotify_url)
-        if match:
-            spotify_item_type = match.group(1)
-            spotify_item_id = match.group(2)
+        spotify_item_type = form.spotify_item_type.data.strip()
+        spotify_item_id = form.spotify_item_id.data.strip()
 
         post = Post(body=form.post.data, author=current_user, spotify_item_id=spotify_item_id, spotify_item_type=spotify_item_type)
         db.session.add(post)
@@ -319,6 +315,47 @@ def reset_db():
    db.session.commit()
 
    return redirect(url_for('index'))
+
+@app.route('/spotify-search')
+@login_required
+def spotify_search():
+    query = request.args.get('q')
+    if not query:
+        flash("No search query provided.")
+        return redirect(url_for('index'))
+    
+    # Get a fresh token if needed
+    access_token = current_user.spotify_access_token
+    if current_user.is_token_expired():
+        access_token = refresh_spotify_token(current_user)
+
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
+
+    params = {
+        'q': query,
+        'type': 'track,album,artist',
+        'limit': 5
+    }
+
+    response = requests.get('https://api.spotify.com/v1/search', headers=headers, params=params)
+
+    if response.status_code != 200:
+        flash("Spotify search failed. Please try agian")
+        return redirect(url_for('index'))
+    
+    data = response.json()
+    results = []
+
+    for t in data.get('tracks', {}).get('items', []):
+        results.append({'id': t['id'], 'name': t['name'], 'type': 'track'})
+    for a in data.get('albums', {}).get('items', []):
+        results.append({'id': a['id'], 'name': a['name'], 'type': 'album'})
+    for ar in data.get('artists', {}).get('items', []):
+        results.append({'id': ar['id'], 'name': ar['name'], 'type': 'artist'})
+    
+    return jsonify(results=results)
 
 @app.route('/repost/<int:post_id>', methods=['POST'])
 @login_required

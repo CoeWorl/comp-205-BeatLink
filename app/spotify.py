@@ -12,7 +12,7 @@ def refresh_spotify_token(user):
     response = requests.post('https://accounts.spotify.com/api/token', data={
         'grant_type': 'refresh_token',
         'refresh token': user.spotify_refresh_token,
-        'client_id': app.config['CLIENT_ID '],
+        'client_id': app.config['SPOTIFY_CLIENT_ID'],
         'client_secret': app.config['CLIENT_SECRET'],
     })
 
