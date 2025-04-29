@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
     TextAreaField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, \
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Optional, \
     Length
 import sqlalchemy as sa
 from app import db
@@ -76,4 +76,10 @@ class PostForm(FlaskForm):
         DataRequired(), Length(min=1, max=140)])
     spotify_item_id = StringField('Spotify ID')
     spotify_item_type = StringField('Spotify Type')
+
     submit = SubmitField('Submit')
+
+class RepostForm(FlaskForm):
+    #user can choose to add text to a post that they are reposting
+    body = TextAreaField('Add a comment', validators=[Optional(), Length(max=280)])
+    submit = SubmitField('Repost')

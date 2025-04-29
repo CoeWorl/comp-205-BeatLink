@@ -5,7 +5,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 import sqlalchemy as sa, os
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, \
-    EmptyForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm
+    EmptyForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm, RepostForm
 from app.models import User, Post
 from app.email import send_password_reset_email
 from app.utils import save_profile_picture
@@ -54,14 +54,14 @@ def index():
 def explore():
     page = request.args.get('page', 1, type=int)
     query = sa.select(Post).order_by(Post.timestamp.desc())
-    posts = db.paginate(query, page=page,
-                        per_page=app.config['POSTS_PER_PAGE'], error_out=False)
+    posts = db.paginate(query, page=page,per_page=app.config['POSTS_PER_PAGE'], error_out=False)
     next_url = url_for('explore', page=posts.next_num) \
         if posts.has_next else None
     prev_url = url_for('explore', page=posts.prev_num) \
         if posts.has_prev else None
+    form = EmptyForm()
     return render_template('index.html', title='Explore', posts=posts.items,
-                           next_url=next_url, prev_url=prev_url)
+                           next_url=next_url, prev_url=prev_url, form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -143,6 +143,9 @@ def callback():
         'client_id': app.config['SPOTIFY_CLIENT_ID'],
         'client_secret': app.config['CLIENT_SECRET']
     })
+
+    print("Status Code:", token_response.status_code)
+    print("Response Text:", token_response.text)
 
     token_data = token_response.json()
     access_token = token_data.get('access_token')
@@ -354,5 +357,19 @@ def spotify_search():
     
     return jsonify(results=results)
 
-
-
+@app.route('/repost/<int:post_id>', methods=['POST'])
+@login_required
+def repost(post_id):
+    original_post = db.session.get(Post, post_id)
+    form = RepostForm()
+    if form.validate_on_submit():
+        repost = Post(
+            body=form.body.data,
+            author=current_user,
+            is_repost=True,
+            original_post=original_post
+        )
+        db.session.add(repost)
+        db.session.commit()
+        flash('Post reposted!')
+    return redirect(url_for('index'))

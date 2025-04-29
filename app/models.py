@@ -137,8 +137,11 @@ class Post(db.Model):
     body: so.Mapped[str] = so.mapped_column(sa.String(140))
     timestamp: so.Mapped[datetime] = so.mapped_column(
         index=True, default=lambda: datetime.now(timezone.utc))
-    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id),
-                                               index=True)
+    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id), index=True)
+    #repost
+    is_repost = db.Column(db.Boolean, default=False)
+    original_post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    original_post = db.relationship('Post', remote_side=[id])
 
     author: so.Mapped[User] = so.relationship(back_populates='posts')
     spotify_item_id = db.Column(db.String(64), nullable=True)
