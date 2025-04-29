@@ -1,26 +1,59 @@
-{% extends "base.html" %}
-{% import "bootstrap_wtf.html" as wtf %}
+{% extends "base.html" %} {% import "bootstrap_wtf.html" as wtf %} {% block
+content %}
+<h1>Hi, {{ current_user.username }}!</h1>
+{% if form %}
+<form method="POST" action="{{ url_for('index') }}">
+  {{form.hidden_tag() }}
 
-{% block content %}
-    <h1>Hi, {{ current_user.username }}!</h1>
-    {% if form %}
-    {{ wtf.quick_form(form) }}
-    {% endif %}
-    {% for post in posts %}
-        {% include '_post.html' %}
-    {% endfor %}
-    <nav aria-label="Post navigation">
-        <ul class="pagination">
-            <li class="page-item{% if not prev_url %} disabled{% endif %}">
-                <a class="page-link" href="{{ prev_url }}">
-                    <span aria-hidden="true">&larr;</span> Newer posts
-                </a>
-            </li>
-            <li class="page-item{% if not next_url %} disabled{% endif %}">
-                <a class="page-link" href="{{ next_url }}">
-                    Older posts <span aria-hidden="true">&rarr;</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
+  <div class="mb-3">
+    {{ form.post.label }} {{ form.post(class="form-control") }}
+  </div>
+
+  <!-- Hidden Spotify attachment fields -->
+  {{ form.spotify_item_id }} {{ form.spotify_item_type }}
+
+  <div id="spotify-selected-confirmation" class="alert alert-success d-none">
+    Spotify item selected! submit your post to attach it.
+  </div>
+
+  <div class="mb-3">{{ form.submit(class="btn btn-primary") }}</div>
+</form>
+
+{% endif %} {% for post in posts %} {% include '_post.html' %} {% endfor %}
+<nav aria-label="Post navigation">
+  <ul class="pagination">
+    <li class="page-item{% if not prev_url %} disabled{% endif %}">
+      <a class="page-link" href="{{ prev_url }}">
+        <span aria-hidden="true">&larr;</span> Newer posts
+      </a>
+    </li>
+    <li class="page-item{% if not next_url %} disabled{% endif %}">
+      <a class="page-link" href="{{ next_url }}">
+        Older posts <span aria-hidden="true">&rarr;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+<script>
+  function selectSpotifyItem(type, id) {
+    const idInput = document.querySelector('[name="spotify_item_id"]');
+    const typeInput = document.querySelector('[name="spotify_item_type"]');
+
+    if (idInput && typeInput) {
+      idInput.value = id;
+      typeInput.value = type;
+    }
+
+    const confirmBox = document.getElementById("spotify-selected-confirmation");
+    if (confirmBox) {
+      confirmBox.classList.remove("d-none");
+    }
+
+    const dropdown = document.getElementById("spotify-search-results");
+    if (dropdown) {
+      dropdown.style.display = "none";
+    }
+  }
+</script>
 {% endblock %}

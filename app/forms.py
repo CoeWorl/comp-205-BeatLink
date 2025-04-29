@@ -74,7 +74,6 @@ class EmptyForm(FlaskForm):
 class PostForm(FlaskForm):
     post = TextAreaField('Say something', validators=[
         DataRequired(), Length(min=1, max=140)])
-    spotify_url = StringField('Attach Spotify Track, Album, or Artist', validators=[
-        DataRequired(), Length(min=1, max=280)
-    ])
+    spotify_item_id = StringField('Spotify ID')
+    spotify_item_type = StringField('Spotify Type')
     submit = SubmitField('Submit')

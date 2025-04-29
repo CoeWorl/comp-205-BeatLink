@@ -61,6 +61,34 @@
             </li>
             {% else %}
             <li class="nav-item">
+              <form
+                class="d-flex"
+                id="spotify-search-form"
+                onsubmit="return false;"
+              >
+                <input
+                  class="form-control me-2"
+                  type="search"
+                  placeholder="Search Spotify..."
+                  aria-label="Search"
+                  id="spotify-search-navbar"
+                />
+              </form>
+              <!-- Dropdown search results -->
+              <div
+                id="spotify-search-results"
+                class="dropdown-menu show"
+                style="
+                  position: absolute;
+                  top: 60px;
+                  left: 50%;
+                  transform: translateX(-50%);
+                  width: 500px;
+                  display: none;
+                "
+              ></div>
+            </li>
+            <li class="nav-item">
               <a
                 class="nav-link"
                 aria-current="page"
@@ -92,5 +120,43 @@
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
       crossorigin="anonymous"
     ></script>
+    <script>
+      document
+        .getElementById("spotify-search-navbar")
+        .addEventListener("input", async function (e) {
+          const query = e.target.value;
+          const resultsBox = document.getElementById("spotify-search-results");
+          if (!query) {
+            resultsBox.style.display = "none";
+            return;
+          }
+
+          const response = await fetch(
+            `/spotify-search?q=${encodeURIComponent(query)}`
+          );
+          const data = await response.json();
+
+          resultsBox.innerHTML = "";
+          data.results.forEach((item) => {
+            const div = document.createElement("div");
+            div.classList.add("dropdown-item");
+            div.innerHTML = `${item.name} (${item.type})`;
+            div.onclick = () => selectSpotifyItem(item.type, item.id);
+            resultsBox.appendChild(div);
+          });
+
+          resultsBox.style.display = "block";
+        });
+
+      function selectSpotifyItem(type, id) {
+        // Set hidden form fields for the post form (even though they aren't in the navbar)
+        document.querySelector('[name="spotify_item_id"]').value = id;
+        document.querySelector('[name="spotify_item_type"]').value = type;
+
+        // Hiding search results
+        document.getElementById("spotify-search-results").style.display =
+          "none";
+      }
+    </script>
   </body>
 </html>
