@@ -101,7 +101,11 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
+
+        login_user(user)
         flash('Congratulations, you are now a registered user!')
+        
+        return redirect(url_for('index'))
     
     print(f"Spotify Client ID: {app.config['SPOTIFY_CLIENT_ID']}")
     return render_template('register.html', title='Register', spotify_client_id=app.config['SPOTIFY_CLIENT_ID'], form=form)
