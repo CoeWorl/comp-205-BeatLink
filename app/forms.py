@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
-    TextAreaField
+    TextAreaField, HiddenField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Optional, \
     Length
 import sqlalchemy as sa
@@ -10,10 +10,10 @@ from app.models import User
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    username = StringField('Username')
+    password = PasswordField('Password')
     remember_me = BooleanField('Remember Me')
-    submit = SubmitField('Sign In')
+    submit = SubmitField('Sign In with Spotify')
 
 
 class RegistrationForm(FlaskForm):
@@ -74,8 +74,8 @@ class EmptyForm(FlaskForm):
 class PostForm(FlaskForm):
     post = TextAreaField('Say something', validators=[
         DataRequired(), Length(min=1, max=140)])
-    spotify_item_id = StringField('Spotify ID')
-    spotify_item_type = StringField('Spotify Type')
+    spotify_item_id = HiddenField()
+    spotify_item_type = HiddenField()
 
     submit = SubmitField('Submit')
 

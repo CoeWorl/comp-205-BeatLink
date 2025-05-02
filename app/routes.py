@@ -68,24 +68,33 @@ def explore():
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = db.session.scalar(
-            sa.select(User).where(User.username == form.username.data))
-        if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
-            return redirect(url_for('login'))
-        login_user(user, remember=form.remember_me.data)
-        next_page = request.args.get('next')
-        if not next_page or urlsplit(next_page).netloc != '':
-            next_page = url_for('index')
-        return redirect(next_page)
-    return render_template('login.html', title='Sign In', form=form)
+    
+    return render_template('login.html', title='Sign In')
+
+
+@app.route('/spotify_login')
+def spotify_login():
+    state = secrets.token_urlsafe(16)
+    session['spotify_auth_state'] = state
+
+    auth_url = (
+        "https://accounts.spotify.com/authorize"
+        f"?client_id={app.config['SPOTIFY_CLIENT_ID']}"
+        f"&response_type=code"
+        f"&redirect_uri={app.config['REDIRECT_URI']}"
+        f"&scope=user-read-email user-read-private"
+        f"&state={state}"
+        f"&show_dialog=true"
+    )
+
+    return redirect(auth_url)
+    
 
 
 @app.route('/logout')
 def logout():
     logout_user()
+    session.pop('spotify_auth_state', None)
     return redirect(url_for('index'))
 
 
@@ -141,17 +150,25 @@ def callback():
     
     # Exchange code for token
     token_response = requests.post(app.config['SPOTIFY_TOKEN_URL'], data={
-        'grant_type': 'authorization_code',
-        'code': code,
-        'redirect_uri': app.config['REDIRECT_URI'],
-        'client_id': app.config['SPOTIFY_CLIENT_ID'],
-        'client_secret': app.config['CLIENT_SECRET']
+    'grant_type': 'authorization_code',
+    'code': code,
+    'redirect_uri': app.config['REDIRECT_URI'],
+    'client_id': app.config['SPOTIFY_CLIENT_ID'],
+    'client_secret': app.config['CLIENT_SECRET']  
     })
 
     print("Status Code:", token_response.status_code)
     print("Response Text:", token_response.text)
 
-    token_data = token_response.json()
+    if token_response.status_code != 200:
+        flash("Failed to authenticate with Spotify.")
+        return redirect(url_for('login'))
+
+    try:
+        token_data = token_response.json()
+    except requests.exceptions.JSONDecodeError:
+        flash("Invalid response from Spotify during token exchange.")
+        return redirect(url_for('login'))
     access_token = token_data.get('access_token')
     refresh_token = token_data.get('refresh_token')
     expires_in = token_data.get('expires_in')
@@ -325,8 +342,7 @@ def reset_db():
 def spotify_search():
     query = request.args.get('q')
     if not query:
-        flash("No search query provided.")
-        return redirect(url_for('index'))
+        return jsonify(results=[]), 400  # 400 = Bad Request
     
     # Get a fresh token if needed
     access_token = current_user.spotify_access_token
@@ -346,8 +362,7 @@ def spotify_search():
     response = requests.get('https://api.spotify.com/v1/search', headers=headers, params=params)
 
     if response.status_code != 200:
-        flash("Spotify search failed. Please try agian")
-        return redirect(url_for('index'))
+        return jsonify(results=[]), 502
     
     data = response.json()
     results = []

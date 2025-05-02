@@ -141,21 +141,38 @@
             const div = document.createElement("div");
             div.classList.add("dropdown-item");
             div.innerHTML = `${item.name} (${item.type})`;
-            div.onclick = () => selectSpotifyItem(item.type, item.id);
+            div.onclick = () =>
+              selectSpotifyItem(item.type, item.id, item.name);
             resultsBox.appendChild(div);
           });
 
           resultsBox.style.display = "block";
         });
 
-      function selectSpotifyItem(type, id) {
+      function selectSpotifyItem(type, id, name) {
         // Set hidden form fields for the post form (even though they aren't in the navbar)
         document.querySelector('[name="spotify_item_id"]').value = id;
         document.querySelector('[name="spotify_item_type"]').value = type;
 
+        // Create a preview message
+        const previewText = document.getElementById("spotify-preview-text");
+        previewText.textContent = `🎧 Attached: ${name} (${type})`;
+
+        // Show the preview box
+        document
+          .getElementById("spotify-selected-preview")
+          .classList.remove("d-none");
+
         // Hiding search results
         document.getElementById("spotify-search-results").style.display =
           "none";
+      }
+      function clearSpotifyItem() {
+        document.querySelector('[name="spotify_item_id"]').value = "";
+        document.querySelector('[name="spotify_item_type"]').value = "";
+        document
+          .getElementById("spotify-selected-preview")
+          .classList.add("d-none");
       }
     </script>
   </body>

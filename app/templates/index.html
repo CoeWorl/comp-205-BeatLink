@@ -18,6 +18,16 @@ content %}
 
   <div class="mb-3">{{ form.submit(class="btn btn-primary") }}</div>
 </form>
+<div id="spotify-selected-preview" class="alert alert-success d-none mt-2">
+  <p id="spotify-preview-text" class="mb-0"></p>
+  <button
+    type="button"
+    class="btn btn-sm btn-outline-danger mt-2"
+    onclick="clearSpotifyItem()"
+  >
+    Remove
+  </button>
+</div>
 
 {% endif %} {% for post in posts %} {% include '_post.html' %} {% endfor %}
 <nav aria-label="Post navigation">
